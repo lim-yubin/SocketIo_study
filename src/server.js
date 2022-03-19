@@ -2,6 +2,7 @@ import express from "express"
 import WebSocket from "ws"
 import http from "http"
 
+
 const app = express()
 
 app.set("view engine", "pug")
@@ -12,21 +13,33 @@ app.get("/*", (_, res) => res.redirect("/"))
 
 const handelListen = () => console.log(`Listening on http://localhost:3000`)
 
-// app.listen(3000, handelListen);
+
 const server = http.createServer(app)
 
 const wss = new WebSocket.Server({ server })
 
 
-
-function handelConnection(socket) {
-    console.log(socket)
+function onSocketClose() {
+    console.log("Disconnected from Server")
 }
 
-wss.on("connection", handelConnection)
+const sockets = []
 
-
-
+wss.on("connection", (socket) => {
+    sockets.push(socket)
+    socket["nickname"] = "Anon"
+    socket.on("close", onSocketClose)
+    socket.on("message", (msg) => {
+        const message = JSON.parse(msg)
+        switch (message.type) {
+            case "new_message": sockets.forEach(aSocket => aSocket.send(`${socket.nickname} : ${message.payload}`))
+            case "nickname":
+                socket['nickname'] = message.payload
+                console.log(socket)
+        }
+    })
+    console.log("Connected to Browser!!")
+})
 
 
 
