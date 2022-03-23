@@ -18,24 +18,26 @@ const wsServer = SocketIO(httpServer)
 
 
 wsServer.on("connection", (socket) => {
+    socket["nickname"] = 'Anon'
     socket.onAny((event) => {
         // console.log(`Socket event: ${event}`)
     })
-    socket.on("enter_room", (roomName, done) => {
+    socket.on("enter_room", (roomName, nickName, done) => {
+        socket["nickname"] = nickName
         socket.join(roomName)
+        socket.to(roomName).emit("welcome", socket.nickname)
+
         done()
-        socket.to(roomName).emit("welcome")
+
     })
     socket.on("disconnecting", () => {
-        socket.rooms.forEach(room => socket.to(room).emit("bye"))
+        socket.rooms.forEach(room => socket.to(room).emit("bye", socket.nickname))
     })
     socket.on("new_message", (msg, room, done) => {
-        socket.to(room).emit("new_message", msg)
+        socket.to(room).emit("new_message", `${socket.nickname}:${msg}`)
         done()
 
     })
-
-
 
 
 })

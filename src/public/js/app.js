@@ -22,6 +22,7 @@ function showRoom() {
     room.hidden = false
     const h3 = room.querySelector('h3')
     h3.innerText = `Room:${roomName}`
+    console.log(roomName)
     const form = room.querySelector("form")
     form.addEventListener("submit", handleMessageSubmit)
 }
@@ -41,23 +42,26 @@ function handleMessageSubmit(event) {
 
 function handleRoomSubmit(event) {
     event.preventDefault();
-    const input = form.querySelector("input")
+    const room = form.querySelector("#roomname")
+    const nick = form.querySelector('#nickname')
     socket.emit("enter_room",
-        input.value,
+        room.value,
+        nick.value,
         showRoom
     )
-    roomName = input.value
-    input.value = ""
+    roomName = room.value
+    room.value = ""
 }
 
 form.addEventListener("submit", handleRoomSubmit)
 
-socket.on("welcome", () => {
-    addMessage("someone joined!")
+socket.on("welcome", (user) => {
+    console.log(user)
+    addMessage(`${user}: joined!`)
 })
 
-socket.on("bye", () => {
-    addMessage("someone left!")
+socket.on("bye", (left) => {
+    addMessage(`${left}: left`)
 })
 
 socket.on("new_message", addMessage)
