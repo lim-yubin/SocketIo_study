@@ -16,11 +16,23 @@ const handelListen = () => console.log(`Listening on http://localhost:3000`)
 const httpServer = http.createServer(app)
 const wsServer = SocketIO(httpServer)
 
+function publicRooms() {
+    const sids = wsServer.sockets.adapter.sids
+    const rooms = wsServer.sockets.adapter.rooms
+
+    const publicRooms = [];
+    rooms.forEach((_, key) => {
+        if (sids.get(key) === undefined) {
+            publicRooms.push(key)
+        }
+    })
+    return publicRooms
+}
 
 wsServer.on("connection", (socket) => {
     socket["nickname"] = 'Anon'
     socket.onAny((event) => {
-        // console.log(`Socket event: ${event}`)
+        console.log(wsServer.sockets.adapter)
     })
     socket.on("enter_room", (roomName, nickName, done) => {
         socket["nickname"] = nickName
@@ -41,36 +53,6 @@ wsServer.on("connection", (socket) => {
 
 
 })
-
-
-
-
-// const wss = new WebSocket.Server({ server })
-
-
-// function onSocketClose() {
-//     console.log("Disconnected from Server")
-// }
-
-// const sockets = []
-
-// wss.on("connection", (socket) => {
-//     sockets.push(socket)
-//     socket["nickname"] = "Anon"
-//     socket.on("close", onSocketClose)
-//     socket.on("message", (msg) => {
-//         const message = JSON.parse(msg)
-//         switch (message.type) {
-//             case "new_message": sockets.forEach(aSocket => aSocket.send(`${socket.nickname} : ${message.payload}`))
-//             case "nickname":
-//                 socket['nickname'] = message.payload
-//                 console.log(socket)
-//         }
-//     })
-//     console.log("Connected to Browser!!")
-// })
-
-
 
 
 
