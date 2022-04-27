@@ -1,3 +1,3 @@
-# Noom
 
-Zoom Clone using Node.JS WebRTC and Websockets
+
+WebRTC, WebSocket, Socket.io 구현 연습: 실시간 채팅
